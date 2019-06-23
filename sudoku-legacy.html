@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sudoku</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.5.2.js"></script>
+    <style>
+        body {
+            background: black;
+            color: white;
+        }
+
+        div {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        td {
+            padding: 6px 12px;
+        }
+
+        table td:nth-child(3n) {
+            border-right: 1px dashed #333333;
+            padding-right: 13px;
+        }
+
+        table td:last-child {
+            border-right: none;
+        }
+
+        table tr:nth-child(3n) td {
+            border-bottom: 1px dashed #333333;
+            padding-bottom: 7px;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        #score {
+            position: fixed;
+            text-align: right;
+            top: 0;
+            right: 0;
+            padding: 15px;
+        }
+
+        #score b {
+            color: red;
+        }
+
+        #score p {
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Sudoku</h1>
+
+    <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Sudoku_solved_by_bactracking.gif" alt="DEMO"> -->
+
+    <div id="a"></div>
+    <div id="b"></div>
+    <div id="c"></div>
+    <br>
+    <div id="d"></div>
+    <div id="e"></div>
+    <div id="f"></div>
+    <br>
+    <div id="g"></div>
+    <div id="h"></div>
+    <div id="i"></div>
+    <br>
+
+    <div id="answer"></div>
+    <aside id="score">
+        <h2>checksums:</h2>
+        <p></p>
+    </aside>
+
+    <script>
+
+        console.log("go");
+
+        function displayTable(arr, table) {
+            var innerHTML = "<table>";
+            arr.forEach(function (row) {
+                innerHTML += "\n\t<tr>";
+                row.forEach(function (cell) {
+                    innerHTML += "<td>" + cell + "</td>";
+                });
+                innerHTML += "\n\t</tr>";
+            });
+            innerHTML += "</table>";
+            table.innerHTML = innerHTML;
+            score(arr);
+        }
+
+        function rand(max) {
+            return Math.floor(Math.random() * Math.floor(max));
+        }
+
+        function makeNewSet() {
+            return [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        }
+
+        function shuffle(array) {
+            var currentIndex = array.length, temporaryValue, randomIndex;
+            while (0 !== currentIndex) {
+                // Pick a remaining element...
+                randomIndex = rand(currentIndex);
+                currentIndex -= 1;
+                // And swap it with the current element.
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }
+            return array;
+        }
+
+        function filter(filter, set) {
+            return set.filter(function (n) {
+                var rv = true;
+                filter.forEach(function (x) {
+                    if (x == n) rv = false;
+                });
+                return rv;
+            });
+        }
+
+        // function blockA() {
+        //     var set = shuffle(makeNewSet());
+        //     return [
+        //         set.splice(-3),
+        //         set.splice(-3),
+        //         set.splice(-3)
+        //     ];
+        // }
+
+        // function blockB(blockA) {
+        //     var set1 = blockA[1].concat(blockA[2]);
+        //     var row1 = shuffle(set1).slice(-3);
+
+        //     var set2 = filter(row1, blockA[0].concat(blockA[2]));
+        //     var row2 = set2.slice(-3);
+
+        //     var set3 = filter(row1.concat(row2), makeNewSet());
+        //     var row3 = set3;
+
+        //     return [
+        //         row1,
+        //         row2,
+        //         row3
+        //     ];
+        // }
+
+        // function blockC(blockA, blockB) {
+        //     var set = shuffle(makeNewSet());
+        //     console.log(blockA, blockB);
+
+        //     var row1 = filter(blockA[0].concat(blockB[0]), set);
+        //     var row2 = filter(blockA[1].concat(blockB[1]), set);
+        //     var row3 = filter(blockA[2].concat(blockB[2]), set);
+
+        //     return [
+        //         row1,
+        //         row2,
+        //         row3
+        //     ];
+        // }
+
+        // function transpose(t) {
+        //     return t[0].map((col, i) => t.map(row => row[i]));
+        // }
+
+        // function blockD(x) {
+        //     return transpose(blockB(transpose(x)));
+        // }
+
+        // function blockE(b, d) {
+
+        //     var set1 = blockA[1].concat(blockA[2]);
+        //     var row1 = shuffle(set1).slice(-3);
+
+        //     var set2 = filter(row1, blockA[0].concat(blockA[2]));
+        //     var row2 = set2.slice(-3);
+
+        //     var set3 = filter(row1.concat(row2), makeNewSet());
+        //     var row3 = set3;
+
+        //     return [
+        //         row1,
+        //         row2,
+        //         row3
+        //     ];
+
+
+
+        // }
+
+        // var a = blockA();
+        // var b = blockB(a);
+        // var c = blockC(a, b);
+
+        // var d = blockD(a);
+
+
+        //render
+        // displayTable(a, document.getElementById("a"));
+        // displayTable(b, document.getElementById("b"));
+        // displayTable(c, document.getElementById("c"));
+
+        // displayTable(d, document.getElementById("d"));
+
+
+
+    </script>
+    <script>
+        function score(b) {
+            var scoreboard = {};
+
+            b.forEach(function (line, i, arr) {
+                // console.log(typeof line);
+                scoreboard["R" + i] = line.reduce(function (a, c) {
+                    return a + c;
+                }, 0);
+                // if (scoreboard["R" + i] != 45)
+                //     scoreboard["R" + i] = "<b>ERROR: " + scoreboard["R" + i] + "</b>";
+            });
+
+
+            for (let i = 0; i < b.length; i++)
+                for (let j = 0; j < b[0].length; j++)
+                    scoreboard["C" + j] = (scoreboard["C" + j] ? scoreboard["C" + j] : 0) + b[i][j];
+
+            //score 3x3 blocks:
+            function sumAdjacent(t, x, y) {
+                // console.log(t[x][y]);
+                return 0 +
+                    t[x][y] + t[x][y - 1] + t[x][y + 1] +
+                    t[x - 1][y] + t[x - 1][y - 1] + t[x - 1][y + 1] +
+                    t[x + 1][y] + t[x + 1][y - 1] + t[x + 1][y + 1];
+            }
+            scoreboard["blockA"] = sumAdjacent(b, 1, 1);
+            scoreboard["blockB"] = sumAdjacent(b, 1, 4);
+            scoreboard["blockC"] = sumAdjacent(b, 1, 7);
+
+            scoreboard["blockD"] = sumAdjacent(b, 4, 1);
+            scoreboard["blockE"] = sumAdjacent(b, 4, 4);
+            scoreboard["blockF"] = sumAdjacent(b, 4, 7);
+
+            scoreboard["blockG"] = sumAdjacent(b, 7, 1);
+            scoreboard["blockH"] = sumAdjacent(b, 7, 4);
+            scoreboard["blockI"] = sumAdjacent(b, 7, 7);
+
+            var success = true;
+            for (var key in scoreboard) {
+                if (scoreboard[key] != 45) {
+                    scoreboard[key] = "<b>ERROR: " + scoreboard[key] + "</b>";
+                    success = false;
+                }
+            }
+            scoreboard.results = success ? "GOOD!" : "<b>FAILED!</b>";
+
+            // console.log(scoreboard);
+            document.querySelector("#score p").innerHTML = JSON.stringify(scoreboard, null, "\t");
+
+            return success;
+        }
+
+        function returnDups(a, b) {
+            return a.filter(function (c) {
+                return b.includes(c);
+            });
+        }
+
+        function nextLine(b) {
+
+            var newRow = [];
+            var firstRow = b[b.length - 2];
+            var prevRow = b[b.length - 1];
+            var isThirdLine = (b.length + 1) % 3 == 0;
+
+            if (isThirdLine)
+                console.log("\nIS THIRD LINE");
+
+            //BLOCK A
+            var setA = prevRow.slice(-6);
+            if (isThirdLine)
+                setA = returnDups(setA, firstRow.slice(-6));
+            console.log("setA", setA);
+            var blockA = shuffle(setA).slice(-3);
+            newRow = newRow.concat(blockA);
+
+
+            //BLOCK B
+            var setB = prevRow.slice(0, 3).concat(prevRow.slice(-3));
+            console.log("setB", setB);
+            if (isThirdLine) {
+                setB = returnDups(setB, firstRow.slice(-3).concat(firstRow.slice(0, 3)));
+                console.log("setB", setB);
+            }
+            var filterB = blockA;
+            var blockB = shuffle(filter(filterB, setB).slice(-3));
+            newRow = newRow.concat(blockB);
+
+
+            //BLOCK C
+            var setC = prevRow.slice(0, -3);
+            if (isThirdLine)
+                setC = returnDups(setC, firstRow.slice(0, -3));
+            console.log("setC", setC);
+            var filterC = blockA.concat(blockB);
+            console.log("filterC", filterC);
+
+            var blockC = filter(filterC, setC);
+            newRow = newRow.concat(blockC);
+
+
+            console.log(newRow);
+            return newRow;
+
+        }
+
+        function newBlockLine(b) {
+
+            var newLine = [];
+
+            b[0].forEach(function (c, i, arr) {
+                var filterCol = b.map(function (v, j) {
+                    return v[i];
+                });
+                console.log(i, filterCol);
+                filterCol = filterCol.concat(newLine);
+                newLine.push(filter(filterCol, b[0]).pop());
+
+            });
+
+            return newLine;
+        }
+
+        function nextLine2(b) {
+            var newRow = [];
+            var firstRow = b[b.length - 2];
+            var prevRow = b[b.length - 1];
+            var isThirdLine = (b.length + 1) % 3 == 0;
+
+
+
+
+
+
+            return newRow;
+        }
+
+        // var board = [];
+
+        //     board.push(shuffle(makeNewSet()));
+        //     board.push(nextLine(board));
+        //     board.push(nextLine(board));
+
+        //     board.push(newBlockLine(board));
+        //     board.push(nextLine2(board));
+        //     board.push(nextLine2(board));
+
+        // console.log(board);
+
+        // displayTable(board, document.getElementById("answer"));
+
+        // score(board);
+
+
+
+    </script>
+    <script>
+        var pageHash = 0;
+        var pingCount = 0;
+        function ping() {
+            var xhr = new XMLHttpRequest;
+            xhr.open('GET', '?ping' + pingCount++);
+            xhr.onload = function () {
+                if (!pageHash)
+                    pageHash = xhr.response.length;
+                if (pageHash != xhr.response.length)
+                    location.reload(); //refresh updated page
+            };
+            xhr.send();
+        }
+        setInterval(ping, 3000);
+
+        function newBoard(n, m) {
+            var b = [];
+            for (let i = 0; i < n; i++)
+                b.push(new Array(m).fill(0));
+            return b;
+        }
+
+        function randBoard(b) {
+            b.forEach(function (row, i) {
+                b[i] = shuffle(makeNewSet());
+            });
+            return b;
+        }
+
+        function blockRouter(b, y, x) {
+            // console.log("block: ", x, y);
+            function getCentered(){
+                x = x < 3 ? 1 : x < 6 ? 4 : 7;
+                y = y < 3 ? 1 : y < 6 ? 4 : 7;                
+            }
+            getCentered();
+
+            function returnAdjacent() {
+                return [
+                    [x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
+                    [x - 1, y],     [x, y],     [x + 1, y],
+                    [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
+                ]
+            }
+            function returnAdjacentValues(t, x, y) {
+                return returnAdjacent().map(function(toup){
+                    return b[toup[0], toup[1]];
+                });
+                // return [
+                //     t[x - 1][y - 1], t[x][y - 1], t[x + 1][y - 1],
+                //     t[x - 1][y], t[x][y], t[x + 1][y],
+                //     t[x - 1][y + 1], t[x][y + 1], t[x + 1][y + 1]
+                // ]
+            }
+            return {
+                returnAdjacent : returnAdjacent,
+                returnAdjacentValues : returnAdjacentValues,
+                x : x,
+                y : y,
+            }
+        }
+
+        function transpose(t) {
+            return t[0].map((col, i) => t.map(row => row[i]));
+        }
+
+        class walker {
+            constructor(b) {
+                this.x = 8;
+                this.y = 0;
+                this.i = 0;
+                this.b = b;
+                this.bLen = b.length - 1;
+            }
+            transpose() {
+                //180 matrix and repeat
+            }
+            next() {
+                if (this.y == 0) {
+                    this.y = ++this.i;
+                    this.x = this.bLen;
+                }
+                else {
+                    this.x--;
+                    this.y--;
+                }
+                return this.value();
+            }
+            value() {
+                return this.b[this.y][this.x];
+            }
+            read() {
+                console.log(this.value(), this);
+            }
+        }
+
+
+
+        function makeSudoku() {
+
+            var board = newBoard(9, 9);
+
+            for (let y = 0; y < board.length; y++) {
+                // var row = board[y];
+                // console.log(y, row);
+
+                for (let x = 0; x < board[0].length; x++) {
+
+                    //filter
+                    var colFilter = board.map(function (v) { return v[x]; });
+                    // console.log("colFilter", colFilter);
+                    var rowFitler = board[y];
+                    // console.log("rowFitler", rowFitler);
+                    var blockFilter = blockRouter(board, x, y).returnAdjacentValues();
+                    // console.log("blockFilter", blockFilter);
+                    var allFilters = colFilter.concat(rowFitler).concat(blockFilter);
+                    // console.log("allFilters", allFilters);
+
+                    //set
+                    // if (y > 0) {
+                    //     var w = new walker(board);
+                    //     while(allFilters.includes(w.value())){
+                    //         w.read();
+                    //         w.next();
+                    //     }
+                    //     board[y][x] = w.value();
+                    // }
+                    // else {
+                    //     board[y][x] = filter(allFilters, makeNewSet())[0];
+                    // }
+                    // if(y == 0)
+
+                    //write
+                    board[y][x] = filter(allFilters, shuffle(makeNewSet()))[0];
+                    // console.log(board[y][x]);
+
+                    if (board[y][x] === undefined) {
+                        console.log("OH NOES! reseting...");
+                        // return window.requestAnimationFrame(makeSudoku);
+                        window.requestAnimationFrame(function () {
+                            displayTable(board, document.getElementById("answer"));
+                        });
+                        // y = rand(board.length);
+                        // x = rand(board.length);
+                        return;
+                    }
+                };
+
+            };
+
+            // alert("HORRAY!");
+            console.log("HORRAY!");
+            displayTable(board, document.getElementById("answer"));
+
+        }
+        // makeSudoku();
+
+
+        // function loopRandBoard() {
+        //     randBoard(board);
+        //     displayTable(board, document.getElementById("answer"));
+        //     if (!score(board))
+        //         window.requestAnimationFrame(loopRandBoard);
+        // }
+        // loopRandBoard();
+
+
+    </script>
+    <script>
+
+        var board = newBoard(9, 9);
+        var bLen = board.length;
+
+
+        function updateCell(x, y){
+
+            if(!board[y][x]){
+                //filter
+                var colFilter = board.map(function (v) { return v[x]; });
+                // console.log("colFilter", colFilter);
+                var rowFitler = board[y];
+                // console.log("rowFitler", rowFitler);
+                var blockFilter = blockRouter(board, x, y);
+                // console.log("blockFilter", blockFilter);
+                var allFilters = colFilter.concat(rowFitler).concat(blockFilter);
+                // console.log("allFilters", allFilters);
+
+                //write
+                board[y][x] = filter(allFilters, shuffle(makeNewSet()))[0];
+                // console.log(board[y][x]);
+
+                if (board[y][x] === undefined) {
+                    console.log("OH NOES!", x, y);
+                    board[y][x] = 0;
+
+                    blockRouter(board, x, y).returnAdjacent().forEach(function(toup){
+                        console.log(toup);
+                        board[toup[0]][toup[1]] = 0;
+                    });
+
+
+                    // if(filter(colFilter, shuffle(makeNewSet()))[0] === undefined)
+                    //     board.forEach(function(row){ 
+                    //         row[x] = 0;
+                    //     });
+                    // else if(filter(rowFitler, shuffle(makeNewSet()))[0] === undefined)
+                    //     board[y].forEach(function(cell){ 
+                    //         cell = 0;
+                    //     });
+                    // else
+                    //     blockRouter(board, x, y).forEach(function(cell){                             
+                    //         cell = 0;                            
+                    //     });
+                    return;                   
+                    
+                }
+            }
+
+            x++;
+            if(x == bLen){
+                x = 0;
+                y++;
+            }
+            if(y == bLen)
+                y = 0;
+
+            window.requestAnimationFrame(function(){
+                displayTable(board, document.getElementById("answer"));
+                updateCell(x, y);
+            });
+        }
+        updateCell(0, 0);
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+body {
+    background: black;
+    color: white;
+}
+
+div {
+    display: inline-block;
+    vertical-align: top;
+}
+
+input[type='number'] {
+    background: black;
+    color: white;
+    border: none;
+    -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+p{
+    white-space: pre;
+}
+
+textarea{
+    width: 650px;
+    height: 250px;
+    background: black;
+    color: white;
+    display: block;
+}
+
+textarea::placeholder{
+    color: #4CAF50;
+}
+
+td {
+    padding: 6px 12px;
+}
+
+table td:nth-child(3n) {
+    border-right: 1px dashed #333333;
+    padding-right: 13px;
+}
+
+table td:last-child {
+    border-right: none;
+}
+
+table tr:nth-child(3n) td {
+    border-bottom: 1px dashed #333333;
+    padding-bottom: 7px;
+}
+
+table tr:last-child td {
+    border-bottom: none;
+}
+
+#input button{
+    display: block;
+    float: right;
+    padding: 7px 16px;
+    margin: 10px 0;
+    border-radius: 15px;
+    background: black;
+    color: white;
+}
+#input button:hover{
+    background: gray;
+    cursor: pointer;
+}
+
+#score {
+    position: fixed;
+    text-align: right;
+    top: 0;
+    right: 0;
+    padding: 15px;
+}
+
+#score b {
+    color: red;
+}
+
+#score p {
+    white-space: pre;
+}

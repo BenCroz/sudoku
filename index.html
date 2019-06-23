@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Sudoku</h1>
+    <form>
+        <label for="ops">OPs:</label>
+        <input type="number" id="ops">
+    </form>
+
+    <div id="answer"></div>
+    <br>
+
+    <div id="input">
+        <p>Your Puzzle Here (0's are blanks):</p>
+        <textarea name="input" id="input" cols="9" rows="9" placeholder="">
+000000000
+000003085
+001020000
+000507000
+004000100
+090000000
+500000073
+002010000
+000040009
+    </textarea>
+        <button type="submit">Solve</button>
+    </div>
+
+    <p>
+        A Sudoku designed to work against the brute force algorithm:
+        000000000
+        000003085
+        001020000
+        000507000
+        004000100
+        090000000
+        500000073
+        002010000
+        000040009
+    </p>
+    <p>
+        A Sudoku with 17 clues and diagonal symmetry:
+        000000001
+        000000023
+        004005000
+        000100000
+        000030600
+        007000580
+        000067000
+        010004000
+        520000000
+    </p>
+
+    <p>
+        A normal puzzle
+        201070900
+        407009008
+        050000407
+        003100506
+        502406801
+        806005700
+        105000070
+        600700105
+        008040602
+    </p>
+
+    <aside id="score">
+        <h2>checksums:</h2>
+        <p></p>
+    </aside>
+    <script src="sudoku.js"></script>
+    <!-- <script src="syncBrowser.js"></script> -->
+</body>
+
+</html>
