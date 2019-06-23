@@ -43,7 +43,7 @@ function score(b) {
     scoreboard.results = success ? "GOOD!" : "<b>FAILED!</b>";
 
     //RENDER
-    // document.querySelector("#score p").innerHTML = JSON.stringify(scoreboard, null, "\t");
+    document.querySelector("#score p").innerHTML = JSON.stringify(scoreboard, null, "\t");
 
     return success;
 }
@@ -129,31 +129,6 @@ function displayTable(arr, table) {
     table.innerHTML = innerHTML;
 }
 
-var clues;
-function getClues() {
-    var input = document.querySelector("#input > textarea").value;
-    var arr = input.match(/[0-9]/g);
-    if (arr.length != 81)
-        throw arr.length + " numbers found, shoudl be 81!";
-    clues = arr.map(function (s) {
-        return parseInt(s);
-    });
-    init();
-}
-document.querySelector("#input > button").addEventListener("click", getClues);
-
-function addClues(b) {
-    bLen = b.length;
-    if (clues){
-        for (let i = 0; i < bLen; i++)
-            for (let j = 0; j < b[0].length; j++)
-                if (clues[i * bLen + j])
-                    b[i][j] = clues[i * bLen + j];
-    }
-    else
-        console.log("NO CLUES!?");
-}
-
 function init() {
     function updateCell(x, y) {
         if (!board[y][x]) {
@@ -184,9 +159,6 @@ function init() {
                 blockRouter(board, x, y).returnAdjacent().forEach(function (toup) {
                     board[toup[0]][toup[1]] = 0; //clear block
                 });
-                
-                //re-add clues
-                addClues(board);
 
                 //ERROR HISTORY
                 errorMessage = x + "-" + y;
@@ -203,19 +175,19 @@ function init() {
                     init(); //RESTART!
                 }
 
-                //RENDER
-                // window.requestAnimationFrame(function () {
-                //     displayTable(board, table);
-                //     table.style.background = "#1b1b1b";
-                //     setTimeout(function () {
-                //         table.style.background = "none";
-                //     }, 0);
-                // });
+                // RENDER
+                window.requestAnimationFrame(function () {
+                    displayTable(board, table);
+                    table.style.background = "#1b1b1b";
+                    setTimeout(function () {
+                        table.style.background = "none";
+                    }, 0);
+                });
             }
             else {
                 //RENDER
-                // updateTable([y, x, board[y][x]], table);
-                // score(board);
+                updateTable([y, x, board[y][x]], table);
+                score(board);
             }
         }
 
@@ -255,9 +227,6 @@ function init() {
     opsCounter.value = 0;
     var errorHistory = [];
 
-    //solving? 
-    addClues(board);
-
     //RENDER
     displayTable(board, table);
 
@@ -266,4 +235,4 @@ function init() {
 }
 
 console.log("go");
-// init();
+init();

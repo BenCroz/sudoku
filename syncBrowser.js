@@ -1,9 +1,10 @@
 //SYNC 
+console.log("syncBrowser");
 var pageHash = 0;
 var pingCount = 0;
 function ping() {
     var xhr = new XMLHttpRequest;
-    xhr.open('GET', '/sudoku/sudoku.js?ping&' + pingCount++);
+    xhr.open('GET', 'sudoku.js?ping&' + pingCount++);
     xhr.onload = function () {
         if (!pageHash)
             pageHash = xhr.response.length;
